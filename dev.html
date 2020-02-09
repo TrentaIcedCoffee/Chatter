@@ -3,7 +3,7 @@
   <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
   <script>
     window.onload = function() {
-      var socket = io.connect('http://localhost:5000')
+      var socket = io.connect('http://3.80.148.116:3000')
       socket.on('connect', function() {
         var res = socket.emit('connectEvent')
         console.log('connected', res)
