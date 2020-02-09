@@ -2,6 +2,7 @@
 
 from flask import Flask, request, session
 from flask_sqlalchemy import SQLAlchemy
+from flask_socketio import SocketIO, emit
 import os
 
 app = Flask(__name__)
@@ -51,5 +52,11 @@ def updateSession(user):
   session['userId'] = user.userId
   session['username'] = user.username
 
+socketio = SocketIO(app)
+
+@socketio.on('connectEvent')
+def connect():
+  emit('status', {'message': 'connected'})
+
 if __name__ == '__main__':
-  app.run(debug=True, host='localhost', port=8080)
+  socketio.run(app, host='localhost')
