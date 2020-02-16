@@ -3,3 +3,4 @@ Dockerfile
 
 __pycache__/
 venv/
+web/
