@@ -1,22 +1,19 @@
 ''' backend '''
 
-from flask import Flask, request
-from flask_socketio import SocketIO, emit, join_room, leave_room
+from flask import Flask
+from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 from dotenv import load_dotenv
 
 import os
 
 load_dotenv()
-envs = [
-
-]
+envs = []
 if envs and any(os.getenv(env) is None for env in envs):
   exit('exited for missing envs')
 
 app = Flask(__name__)
 app.debug = True
-app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 CORS(app)
 
 # routes
@@ -26,42 +23,33 @@ def index():
   return {'message': 'ok'}, 200
 
 # sockets
-activeUsers = set()
+activeUsers = set() # { email... }
 
 socketio = SocketIO(app, cors_allowed_origins='*')
+
+def emitActiveUsers():
+  emit('activeUsers', {'activeUsers': list(activeUsers)}, broadcast=True, include_self=True)
 
 @socketio.on('connect')
 def connect():
   ''' new connect '''
-  print('new connection done')
+  emitActiveUsers()
 
-@socketio.on('pushUser')
-def pushUser(data):
-  activeUsers.add(data['email'])
-  emit('users', {'users': list(activeUsers)})
-  print(activeUsers)
+@socketio.on('addUser')
+def addUser(data):
+  activeUsers.add(data['user'])
+  emitActiveUsers()
 
-@socketio.on('popUser')
-def popUser(data):
-  activeUsers.remove(data['email'])
-  emit('users', {'users': list(activeUsers)})
-  print(activeUsers)
+@socketio.on('rmUser')
+def rmUser(data):
+  activeUsers.remove(data['user'])
+  emitActiveUsers()
 
-@socketio.on('call')
-def call(data):
-  room = data['room']
-  this, that = room.split(':')
-  print(this, 'calls', that)
-  join_room(room)
-  emit(that, { 'this': this })
-
-@socketio.on('answer')
-def answer(data):
-  username = data['username']
-  room = data['room']
-  that, this = room.split(':')
-  print(this, 'answer', that)
-  join_room(room)
+@socketio.on('msg')
+def msg(data):
+  email, text = data['user'], data['text']
+  # TODO add to text collections
+  emit('msg', { 'user': email, 'text': text }, broadcast=True, include_self=True)
 
 if __name__ == '__main__':
   socketio.run(app, host='0.0.0.0', port=3000)
