@@ -1,62 +1,67 @@
 ''' backend '''
 
-from flask import Flask, request, session
-from flask_sqlalchemy import SQLAlchemy
-from flask_socketio import SocketIO, emit
+from flask import Flask, request
+from flask_socketio import SocketIO, emit, join_room, leave_room
+from flask_cors import CORS
+from dotenv import load_dotenv
+
 import os
+
+load_dotenv()
+envs = [
+
+]
+if envs and any(os.getenv(env) is None for env in envs):
+  exit('exited for missing envs')
 
 app = Flask(__name__)
 app.debug = True
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
-app.secret_key = os.urandom(24)
+app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
+CORS(app)
 
-db = SQLAlchemy(app)
-
-class User(db.Model):
-  __tablename__ = 'users'
-  userId = db.Column(db.Integer, primary_key=True)
-  username = db.Column(db.String, nullable=False)
-  password = db.Column(db.String, nullable=False)
-
+# routes
 @app.route('/', methods=['GET'])
-def ping():
+def index():
   ''' health check '''
-  return 'pong'
-
-@app.route('/register', methods=['POST'])
-def register():
-  ''' create new user and create session '''
-  username = request.form.get('username').lower()
-  password = request.form.get('password').lower()
-  if User.query.filter_by(username=username).count() > 0:
-    return {'message': 'username exists'}, 400
-  newUser = User(username=username, password=password)
-  db.session.add(newUser)
-  db.session.commit()
-  updateSession(newUser)
   return {'message': 'ok'}, 200
 
-@app.route('/login', methods=['POST'])
-def login():
-  ''' login and create session '''
-  username = request.form.get('username').lower()
-  password = request.form.get('password').lower()
-  user = User.query.filter_by(username=username).first()
-  if user is None or user.password != password:
-    return {'message': 'username/password mismatch'}, 400
-  updateSession(user)
-  return {'message': 'ok'}, 200
-
-def updateSession(user):
-  session['userId'] = user.userId
-  session['username'] = user.username
+# sockets
+activeUsers = set()
 
 socketio = SocketIO(app, cors_allowed_origins='*')
 
-@socketio.on('connectEvent')
+@socketio.on('connect')
 def connect():
-  emit('status', {'message': 'connected'})
+  ''' new connect '''
+  print('new connection done')
+
+@socketio.on('pushUser')
+def pushUser(data):
+  activeUsers.add(data['email'])
+  emit('users', {'users': list(activeUsers)})
+  print(activeUsers)
+
+@socketio.on('popUser')
+def popUser(data):
+  activeUsers.remove(data['email'])
+  emit('users', {'users': list(activeUsers)})
+  print(activeUsers)
+
+@socketio.on('call')
+def call(data):
+  room = data['room']
+  this, that = room.split(':')
+  print(this, 'calls', that)
+  join_room(room)
+  emit(that, { 'this': this })
+
+@socketio.on('answer')
+def answer(data):
+  username = data['username']
+  room = data['room']
+  that, this = room.split(':')
+  print(this, 'answer', that)
+  join_room(room)
 
 if __name__ == '__main__':
   socketio.run(app, host='0.0.0.0', port=3000)
