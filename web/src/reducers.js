@@ -1,20 +1,21 @@
 const init = {
-  msg: '',
+  err: '',
   user: null,
   registerUsername: '',
   registerPassword: '',
   loginUsername: '',
   loginPassword: '',
-  socket: null,
-  endpoint: 'http://18.233.9.194:3000',
   text: '',
-  users: [],
+  msgs: [],
+  activeUsers: [],
 };
 
 export const rootReducer = (state = init, action) => {
   switch (action.type) {
     case 'SETTER':
       return { ...state, ...action.res };
+    case 'PUSH_MSG':
+      return { ...state, msgs: [ ...state.msgs, action.res ] };
     default:
       return state;
   }

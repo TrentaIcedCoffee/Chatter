@@ -1,8 +1,8 @@
 import * as utils from './utils';
 
-export const setter = (key, val) => ({
+export const setter = res => ({
   type: 'SETTER',
-  res: { [key]: val },
+  res: { ...res },
 });
 
 export const register = (email, password) => dispatch => {
@@ -33,3 +33,8 @@ export const logout = () => dispatch => {
   utils.auth.signOut()
     .catch(err => dispatch(setter('msg', err.message)));
 };
+
+export const pushMsg = msg => ({
+  type: 'PUSH_MSG',
+  res: msg,
+});

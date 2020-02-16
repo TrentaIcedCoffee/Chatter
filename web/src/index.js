@@ -4,7 +4,6 @@ import { applyMiddleware, createStore, combineReducers } from 'redux';
 import { Provider, connect } from 'react-redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import thunk from 'redux-thunk';
-import socketIOClient from "socket.io-client";
 import * as serviceWorker from './serviceWorker';
 
 import * as utils from './utils';
@@ -22,26 +21,45 @@ const store = createStore(
   ),
 );
 
-// firebase auth
-utils.auth.onAuthStateChanged(user => store.dispatch({
-  type: 'SETTER',
-  res: { user: user },
-}));
-
-const mspMsg = state => ({
-  msg: state.rootReducer.msg,
+const socket = utils.socketIOClient(utils.endpoint);
+socket.on('connect', () => {
+  console.log('connected');
+  socket.on('activeUsers', data => {
+    store.dispatch(actions.setter({ activeUsers: data.activeUsers }));
+  });
+  socket.on('msg', data => {
+    store.dispatch(actions.pushMsg(data));
+  });
 });
 
-class Msg extends React.Component {
+const authStateChanged = user => dispatch => {
+  if (user) {
+    dispatch(actions.setter({ user: user }));
+    socket.userEmail = user.email; // IM for future use
+    socket.emit('addUser', { user: socket.userEmail });
+  } else {
+    dispatch(actions.setter({ user: user }));
+    socket.emit('rmUser', { user: socket.userEmail });
+  }
+};
+
+// firebase auth
+utils.auth.onAuthStateChanged(user => store.dispatch(authStateChanged(user)));
+
+const mspErr = state => ({
+  err: state.rootReducer.err,
+});
+
+class Err extends React.Component {
   render = () => (
     <div>
-      <h2>Msg</h2>
-      <div>Msg: {this.props.msg}</div>
+      <h2>Err</h2>
+      <div>Err: {this.props.err}</div>
     </div>
   );
 }
 
-Msg = connect(mspMsg, {})(Msg);
+Err = connect(mspErr, {})(Err);
 
 const mspUser = state => ({
   user: state.rootReducer.user,
@@ -52,7 +70,7 @@ const mspUser = state => ({
 });
 
 const mdpUser = dispatch => ({
-  setter: (key, val) => dispatch(actions.setter(key, val)),
+  setter: res => dispatch(actions.setter(res)),
   register: (email, password) => dispatch(actions.register(email, password)),
   login: (email, password) => dispatch(actions.login(email, password)),
   logout: () => dispatch(actions.logout()),
@@ -75,17 +93,17 @@ class User extends React.Component {
         <div>
           <h4>Login</h4>
           <input placeholder="loginUsername" value={loginUsername}
-            onChange={e => setter('loginUsername', e.target.value)} />
+            onChange={e => setter({ loginUsername: e.target.value })} />
           <input placeholder="loginPassword" value={loginPassword}
-            onChange={e => setter('loginPassword', e.target.value)} />
+            onChange={e => setter({ loginPassword: e.target.value })} />
           <button onClick={() => login(loginUsername, loginPassword)}>Login</button>
         </div>
         <div>
           <h4>Register</h4>
           <input placeholder="registerUsername" value={registerUsername}
-            onChange={e => setter('registerUsername', e.target.value)} />
+            onChange={e => setter({ registerUsername: e.target.value })} />
           <input placeholder="registerPassword" value={registerPassword}
-            onChange={e => setter('registerPassword', e.target.value)} />
+            onChange={e => setter({ registerPassword: e.target.value })} />
           <button onClick={() => register(registerUsername, registerPassword)}>Register</button>
         </div>
         <div>
@@ -101,65 +119,62 @@ User = connect(mspUser, mdpUser)(User);
 
 const mspChat = state => ({
   user: state.rootReducer.user,
-  endpoint: state.rootReducer.endpoint,
-  socket: state.rootReducer.socket,
-  users: state.rootReducer.users,
+  activeUsers: state.rootReducer.activeUsers,
+  msgs: state.rootReducer.msgs,
+  text: state.rootReducer.text,
 });
 
 const mdpChat = dispatch => ({
-  setter: (key, val) => dispatch(actions.setter(key, val)),
+  setter: res => dispatch(actions.setter(res)),
 });
 
 class Chat extends React.Component {
-  componentDidUpdate = (prevProps, prevState, snapshot) => {
-    const { user, socket, endpoint } = this.props;
-    const { setter } = this.props;
-    if (user && !socket) {
-      const socket = socketIOClient(endpoint);
-      socket.userEmail = user.email; // IM for future use
-      socket.on('connect', () => {
-        console.log('connect');
-        setter('socket', socket);
-        socket.emit('pushUser', { email: socket.userEmail });
-        socket.on('users', data => {
-          setter('users', data.users);
-        });
-        socket.on('disconnect', () => {
-          console.log('disconnect');
-          // TODO emit in here failed
-          setter('socket', null);
-          setter('users', []);
-        });
-      });
-    }
-    if (!user && socket) {
-      socket.emit('popUser', { email: socket.userEmail }, () => {
-        socket.disconnect();
-      });
-    }
-  };
 
-  allUsers = () => {
-    const { users } = this.props;
-    return (
-      <div>
-        <h4>Current Users</h4>
-        {users.map(email =>
-          <li key={email}>
-            <button onClick={() => {}}>Chat</button>
-            {email}
-          </li>
-        )}
-      </div>
-    );
+  sendText = () => {
+    const { user, text } = this.props;
+    const { setter } = this.props;
+    if (!user) {
+      setter({'err': 'login first'});
+    } else if (text.length === 0) {
+      setter({'err': 'cannot send empty message'});
+    }
+    if (user && text.length > 0) {
+      socket.emit('msg', { user: socket.userEmail, text: text });
+    }
   };
 
   render = () => {
-    const { user } = this.props;
+    const { activeUsers, msgs, text } = this.props;
+    const { setter } = this.props;
     return (
       <div>
         <h2>Chat</h2>
-        {user && this.allUsers()}
+        <div>
+          <h4>Current Users</h4>
+          {activeUsers.map(email =>
+            <li key={email}>
+              {email}
+            </li>
+          )}
+        </div>
+        <div>
+          <h4>Message Box</h4>
+          <button onClick={() => this.sendText()}>Send</button>
+          <div>
+            <textarea rows="4" cols="50" value={text}
+              onChange={e => setter({ text: e.target.value })}>
+            </textarea>
+          </div>
+          <button onClick={() => setter({ msgs: [] })}>Clear</button>
+          <div>
+            {msgs.map((msg, idx) => (
+              <li key={idx}>
+                user: {msg.user},
+                text: {msg.text}
+              </li>
+            ))}
+          </div>
+        </div>
       </div>
     );
   };
@@ -169,7 +184,7 @@ Chat = connect(mspChat, mdpChat)(Chat);
 
 ReactDOM.render(
   <Provider store={store}>
-    <Msg />
+    <Err />
     <User />
     <Chat />
   </Provider>,

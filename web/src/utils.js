@@ -1,6 +1,7 @@
 import app from 'firebase/app';
 import 'firebase/firestore';
 import 'firebase/auth';
+export { default as socketIOClient } from 'socket.io-client';
 
 const firebaseConfig = {
  apiKey: "AIzaSyC0IrR4AvUJVRX_aUyucjhV66YzawPKYFk",
@@ -11,7 +12,8 @@ const firebaseConfig = {
   messagingSenderId: "204136491965",
   appId: "1:204136491965:web:86dea458298aa68ca2c0d4",
 };
+
 export const firebase = app.initializeApp(firebaseConfig);
 export const db = firebase.firestore();
 export const auth = firebase.auth();
-export const SESSION = app.auth.Auth.Persistence.SESSION;
+export const endpoint = 'localhost:3000';
