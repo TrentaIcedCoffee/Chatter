@@ -3,14 +3,6 @@
 from flask import Flask
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
-from dotenv import load_dotenv
-
-import os
-
-load_dotenv()
-envs = []
-if envs and any(os.getenv(env) is None for env in envs):
-  exit('exited for missing envs')
 
 app = Flask(__name__)
 app.debug = True
