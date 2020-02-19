@@ -1,11 +1,12 @@
 const initialState = {
-  isLogin: false,
-  userInfo: {
+  err: '',
+  user: null,
+  input: {
     email: null,
     password: null,
   },
-  token: null,
-  error: 'none',
+  msgs: [],
+  activeUsers: [],
 };
 
 const userReducer = (state = initialState, action) => {
@@ -13,16 +14,16 @@ const userReducer = (state = initialState, action) => {
     case 'UPDATE_EMAIL':
       return {
         ...state,
-        userInfo: {
-          ...state.userInfo,
+        input: {
+          ...state.input,
           email: action.payload,
         },
       };
     case 'UPDATE_PASSWORD':
       return {
         ...state,
-        userInfo: {
-          ...state.userInfo,
+        input: {
+          ...state.input,
           password: action.payload,
         },
       };

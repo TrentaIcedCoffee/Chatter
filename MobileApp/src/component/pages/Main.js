@@ -9,10 +9,11 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
 } from 'react-native';
-import styles from './startPage.css';
+import styles from './Main.css';
+
 import {connect} from 'react-redux';
 import {userActions} from '../../store/actions';
-import {withRouter} from 'react-router-native';
+import * as utils from './utils';
 
 class StartPage extends Component {
   constructor() {
@@ -21,7 +22,7 @@ class StartPage extends Component {
   }
 
   handleLogin() {
-    var {email, password} = this.props.userInfo;
+    var {email, password} = this.props.input;
     this.props.login(email, password);
     // this.props.history.push('/Lst');
   }
@@ -52,7 +53,7 @@ class StartPage extends Component {
               <TouchableOpacity
                 style={styles.userBtnLogin}
                 onPress={this.handleLogin}>
-                <Text style={styles.userBtnText}>Next</Text>
+                <Text style={styles.userBtnText}>Login</Text>
               </TouchableOpacity>
             </View>
             <View style={styles.registerContainer}>
@@ -72,7 +73,7 @@ class StartPage extends Component {
 
 const mapStateToProps = state => {
   return {
-    userInfo: state.user.userInfo,
+    input: state.user.input,
   };
 };
 
@@ -84,7 +85,4 @@ const mapDispatchToProps = dispatch => {
   };
 };
 
-// export default withRouter(
-//   connect(mapStateToProps, mapDispatchToProps())(StartPage),
-// );
 export default connect(mapStateToProps, mapDispatchToProps())(StartPage);
