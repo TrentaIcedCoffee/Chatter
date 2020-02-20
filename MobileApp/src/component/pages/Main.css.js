@@ -1,13 +1,6 @@
 import {StyleSheet} from 'react-native';
-import {
-  Header,
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
 
-const StartPageCSS = StyleSheet.create({
+const MainCSS = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -67,4 +60,4 @@ const StartPageCSS = StyleSheet.create({
   },
 });
 
-export default StartPageCSS;
+export default MainCSS;

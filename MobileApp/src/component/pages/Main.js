@@ -13,9 +13,8 @@ import styles from './Main.css';
 
 import {connect} from 'react-redux';
 import {userActions} from '../../store/actions';
-import * as utils from './utils';
 
-class StartPage extends Component {
+class Main extends Component {
   constructor() {
     super();
     this.handleLogin = this.handleLogin.bind(this);
@@ -60,7 +59,9 @@ class StartPage extends Component {
               <Text style={styles.leadingText}>
                 Doesn't have an account yet?
               </Text>
-              <TouchableOpacity style={styles.registerBtn}>
+              <TouchableOpacity
+                style={styles.registerBtn}
+                onPress={() => this.props.logout()}>
                 <Text style={styles.registerText}>REGISTER</Text>
               </TouchableOpacity>
             </View>
@@ -82,7 +83,8 @@ const mapDispatchToProps = dispatch => {
     updatePassword: userActions.updatePassword,
     updateEmail: userActions.updateEmail,
     login: userActions.login,
+    logout: userActions.logout,
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps())(StartPage);
+export default connect(mapStateToProps, mapDispatchToProps())(Main);

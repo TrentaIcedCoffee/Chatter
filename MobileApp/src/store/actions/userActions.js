@@ -48,9 +48,16 @@ export const login = (email, password) => dispatch => {
     dispatch(setter({err: `email: ${email}, password: ${password} misformat`}));
     return;
   }
-  utils.auth.signInWithEmailAndPassword(email, password).catch(err => {
-    dispatch(setter({err: err.message}));
-  });
+  utils.auth
+    .signInWithEmailAndPassword(email, password)
+    .then(() =>
+      dispatch({
+        type: 'CLEAR_INPUT',
+      }),
+    )
+    .catch(err => {
+      dispatch(setter({err: err.message}));
+    });
 };
 
 export const logout = () => dispatch => {
