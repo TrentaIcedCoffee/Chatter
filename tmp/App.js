@@ -18,12 +18,13 @@ const store = createStore(
   composeWithDevTools(applyMiddleware(thunk))
 );
 
-const socket = utils.socketIOClient(utils.endpoint);
+import SocketIOClient from 'socket.io-client'
+
+const socket = SocketIOClient(utils.endpoint + '?b64=1');
 // TODO failed to connect & no warning
 socket.on('connect', () => {
   console.log('connected');
   socket.on('activeUsers', data => {
-    console.log(data)
     store.dispatch(actions.setter({activeUsers: data.emails}));
   });
   socket.on('msg', data => {

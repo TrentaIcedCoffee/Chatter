@@ -1,7 +1,7 @@
 import app from 'firebase/app';
 import 'firebase/firestore';
 import 'firebase/auth';
-export { default as socketIOClient } from 'socket.io-client';
+export { default as io } from 'socket.io-client';
 
 const firebaseConfig = {
  apiKey: "AIzaSyC0IrR4AvUJVRX_aUyucjhV66YzawPKYFk",
