@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, TextInput, Button } from 'react-native';
+import { StyleSheet, Text, View, TextInput, Button, YellowBox } from 'react-native';
 import { Provider, connect } from 'react-redux';
 
 import * as utils from './src/utils';
@@ -17,6 +17,10 @@ const store = createStore(
   }),
   composeWithDevTools(applyMiddleware(thunk))
 );
+
+YellowBox.ignoreWarnings([
+  'Setting a timer',
+]);
 
 const socket = utils.SocketIOClient(utils.endpoint + '?b64=1');
 
