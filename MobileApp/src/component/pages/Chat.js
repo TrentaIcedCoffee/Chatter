@@ -5,6 +5,7 @@ import {
   TextInput,
   TouchableOpacity,
   SafeAreaView,
+  ActivityIndicator,
 } from 'react-native';
 import styles from './Chat.css';
 import {GiftedChat} from 'react-native-gifted-chat';
@@ -14,6 +15,7 @@ import {userActions} from '../../store/actions';
 import * as utils from '../../utils';
 
 // ??: Do I need socket.on()?
+// ??: Will server broadcast msg send by client
 // !!: Cannot connect to socket
 const socket = utils.socketIOClient(utils.endpoint);
 socket.on('connect', () => {
@@ -34,6 +36,7 @@ class Chat extends Component {
 
   //   TODO: Change emit msg
   sendText(text) {
+    console.log(this.props.user.uid);
     console.log("it's", text);
     const user = this.props.user;
     const {setter} = this.props;
@@ -49,11 +52,17 @@ class Chat extends Component {
 
   render() {
     return (
-      <GiftedChat
-        messages={this.props.msgs}
-        onSend={msg => this.sendText(msg)}
-        user={this.props.user}
-      />
+      <>
+        {this.props.user ? (
+          <GiftedChat
+            messages={this.props.msgs}
+            onSend={msg => this.sendText(msg)}
+            user={{email: this.props.user.email}}
+          />
+        ) : (
+          <ActivityIndicator />
+        )}
+      </>
     );
   }
 }

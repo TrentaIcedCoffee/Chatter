@@ -1,6 +1,7 @@
 const initialState = {
   err: '',
   user: null,
+  isLoginPage: true,
   input: {
     email: null,
     password: null,
@@ -11,6 +12,11 @@ const initialState = {
 
 const userReducer = (state = initialState, action) => {
   switch (action.type) {
+    case 'LOGIN_OR_REGISTER':
+      return {
+        ...state,
+        isLoginPage: action.payload,
+      };
     case 'UPDATE_EMAIL':
       return {
         ...state,

@@ -1,5 +1,19 @@
 import * as utils from '../../utils';
 
+export const loginOrRegister = page => {
+  if (page === 'login') {
+    return {
+      type: 'LOGIN_OR_REGISTER',
+      payload: true,
+    };
+  } else if (page === 'register') {
+    return {
+      type: 'LOGIN_OR_REGISTER',
+      payload: false,
+    };
+  }
+};
+
 export const updateEmail = email => {
   return {
     type: 'UPDATE_EMAIL',

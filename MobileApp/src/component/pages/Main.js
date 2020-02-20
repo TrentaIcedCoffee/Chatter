@@ -18,12 +18,17 @@ class Main extends Component {
   constructor() {
     super();
     this.handleLogin = this.handleLogin.bind(this);
+    this.handleRegister = this.handleRegister.bind(this);
   }
 
   handleLogin() {
     var {email, password} = this.props.input;
     this.props.login(email, password);
-    // this.props.history.push('/Lst');
+  }
+
+  handleRegister() {
+    var {email, password} = this.props.input;
+    this.props.register(email, password);
   }
 
   render() {
@@ -48,22 +53,49 @@ class Main extends Component {
               onChangeText={password => this.props.updatePassword(password)}
               secureTextEntry
             />
-            <View style={styles.userBtnContainer}>
-              <TouchableOpacity
-                style={styles.userBtnLogin}
-                onPress={this.handleLogin}>
-                <Text style={styles.userBtnText}>Login</Text>
-              </TouchableOpacity>
-            </View>
+
+            {this.props.isLoginPage ? (
+              <View style={styles.userBtnContainer}>
+                <TouchableOpacity
+                  style={styles.userBtnLogin}
+                  onPress={this.handleLogin}>
+                  <Text style={styles.userBtnText}>Login</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View style={styles.userBtnContainer}>
+                <TouchableOpacity
+                  style={styles.userBtnLogin}
+                  onPress={this.handleRegister}>
+                  <Text style={styles.userBtnText}>Register</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
             <View style={styles.registerContainer}>
-              <Text style={styles.leadingText}>
-                Doesn't have an account yet?
-              </Text>
-              <TouchableOpacity
-                style={styles.registerBtn}
-                onPress={() => this.props.logout()}>
-                <Text style={styles.registerText}>REGISTER</Text>
-              </TouchableOpacity>
+              {this.props.isLoginPage ? (
+                <>
+                  <Text style={styles.leadingText}>
+                    Doesn't have an account yet?
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.registerBtn}
+                    onPress={() => this.props.loginOrRegister('register')}>
+                    <Text style={styles.registerText}>REGISTER</Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
+                <>
+                  <Text style={styles.leadingText}>
+                    Already have an account?
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.registerBtn}
+                    onPress={() => this.props.loginOrRegister('login')}>
+                    <Text style={styles.registerText}>LOGIN</Text>
+                  </TouchableOpacity>
+                </>
+              )}
             </View>
           </SafeAreaView>
         </KeyboardAvoidingView>
@@ -75,6 +107,7 @@ class Main extends Component {
 const mapStateToProps = state => {
   return {
     input: state.user.input,
+    isLoginPage: state.user.isLoginPage,
   };
 };
 
@@ -83,7 +116,8 @@ const mapDispatchToProps = dispatch => {
     updatePassword: userActions.updatePassword,
     updateEmail: userActions.updateEmail,
     login: userActions.login,
-    logout: userActions.logout,
+    register: userActions.register,
+    loginOrRegister: userActions.loginOrRegister,
   };
 };
 

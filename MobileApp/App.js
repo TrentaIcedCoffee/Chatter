@@ -45,8 +45,8 @@ class App extends Component {
   render() {
     return (
       <Provider store={store}>
-        {/* <Main /> */}
-        <Chat />
+        <Main />
+        {/* <Chat /> */}
         {/* <NativeRouter>
           <Switch>
             <Route exact path="/" component={StartPage} />
