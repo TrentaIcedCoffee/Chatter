@@ -26,7 +26,6 @@ def forbidden(e):
 
 @app.errorhandler(400)
 def badRequest(e):
-  print(e)
   return { 'message': 'bad request' }
 
 # routes
