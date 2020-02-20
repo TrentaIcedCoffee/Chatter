@@ -1,7 +1,6 @@
 ''' backend '''
 
 from flask import Flask
-from flask_acsecure import ACSecure
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -11,13 +10,8 @@ app = Flask(__name__)
 
 # config
 load_dotenv()
-app.debug = True
-app.config.update({
-  'ACSECURE_APP_ID': os.environ.get('ACSECURE_APP_ID'),
-  'ACSECURE_APP_TOKEN': os.environ.get('ACSECURE_APP_TOKEN'),
-})
+app.debug = False
 CORS(app)
-# ACSecure(app)
 
 # error handlers
 @app.errorhandler(403)
