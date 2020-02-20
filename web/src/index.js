@@ -21,7 +21,7 @@ const socket = utils.socketIOClient(utils.endpoint);
 socket.on("connect", () => {
   console.log("connected");
   socket.on("activeUsers", data => {
-    store.dispatch(actions.setter({ activeUsers: data.activeUsers }));
+    store.dispatch(actions.setter({ activeUsers: data.emails }));
   });
   socket.on("msg", data => {
     store.dispatch(actions.pushMsg(data));
@@ -32,10 +32,10 @@ const authStateChanged = user => dispatch => {
   if (user) {
     dispatch(actions.setter({ user: user }));
     socket.userEmail = user.email; // IM for future use
-    socket.emit("addUser", { user: socket.userEmail });
+    socket.emit("addUser", { email: socket.userEmail });
   } else {
     dispatch(actions.setter({ user: user }));
-    socket.emit("rmUser", { user: socket.userEmail });
+    socket.emit("rmUser", { email: socket.userEmail });
   }
 };
 
@@ -150,7 +150,7 @@ class Chat extends React.Component {
       setter({ err: "cannot send empty message" });
     }
     if (user && text.length > 0) {
-      socket.emit("msg", { user: socket.userEmail, text: text });
+      socket.emit("msg", { email: socket.userEmail, text: text });
     }
   };
 
@@ -193,11 +193,28 @@ class Chat extends React.Component {
 
 Chat = connect(mspChat, mdpChat)(Chat);
 
+class App extends React.Component {
+
+  componentWillUnmount = () => {
+    if (socket.connected) {
+      socket.emit("rmUser", { email: socket.userEmail });
+    }
+  }
+
+  render = () => {
+    return (
+      <div>
+        <Err />
+        <User />
+        <Chat />
+      </div>
+    );
+  }
+}
+
 ReactDOM.render(
   <Provider store={store}>
-    <Err />
-    <User />
-    <Chat />
+    <App />
   </Provider>,
   document.getElementById("root")
 );
