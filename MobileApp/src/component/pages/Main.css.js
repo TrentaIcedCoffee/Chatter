@@ -27,7 +27,7 @@ const MainCSS = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '90%',
-    marginBottom: 10,
+    marginBottom: 15,
   },
   userBtnLogin: {
     backgroundColor: '#727F8C',

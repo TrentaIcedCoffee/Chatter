@@ -5,7 +5,7 @@
  * @format
  * @flow
  */
-
+import 'react-native-gesture-handler';
 import React, {Component} from 'react';
 import {NativeRouter, Switch, Route, Redirect} from 'react-router-native';
 import {Provider} from 'react-redux';
@@ -18,6 +18,8 @@ import Chat from './src/component/pages/Chat';
 import Profile from './src/component/pages/Profile';
 
 const socket = utils.socketIOClient(utils.endpoint);
+// TODO failed to connect & no warning
+console.log(socket);
 socket.on('connect', () => {
   console.log('connected');
   socket.on('activeUsers', data => {

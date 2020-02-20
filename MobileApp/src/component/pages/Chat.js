@@ -8,6 +8,8 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import styles from './Chat.css';
+import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
+import {faUserCircle} from '@fortawesome/free-solid-svg-icons';
 import {GiftedChat} from 'react-native-gifted-chat';
 
 import {connect} from 'react-redux';
@@ -15,7 +17,7 @@ import {userActions} from '../../store/actions';
 import * as utils from '../../utils';
 
 // ??: Do I need socket.on()?
-// ??: Will server broadcast msg send by client
+// ??: Will server broadcast msg send by client => YES
 // !!: Cannot connect to socket
 const socket = utils.socketIOClient(utils.endpoint);
 socket.on('connect', () => {
@@ -31,13 +33,16 @@ socket.on('connect', () => {
 class Chat extends Component {
   constructor() {
     super();
+
+    this.handleProfileBtn = this.handleProfileBtn.bind(this);
     this.sendText = this.sendText.bind(this);
   }
+
+  handleProfileBtn() {}
 
   //   TODO: Change emit msg
   sendText(text) {
     console.log(this.props.user.uid);
-    console.log("it's", text);
     const user = this.props.user;
     const {setter} = this.props;
     if (!user) {
@@ -52,7 +57,21 @@ class Chat extends Component {
 
   render() {
     return (
-      <>
+      <View style={styles.container}>
+        <View style={styles.navBar}>
+          <View style={styles.titleBox}>
+            <Text style={styles.titleText}>Now You Shall Talk!</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.profileBtn}
+            onPress={this.handleProfileBtn}>
+            <FontAwesomeIcon
+              icon={faUserCircle}
+              style={styles.profileBtnIcon}
+              size={40}
+            />
+          </TouchableOpacity>
+        </View>
         {this.props.user ? (
           <GiftedChat
             messages={this.props.msgs}
@@ -62,7 +81,7 @@ class Chat extends Component {
         ) : (
           <ActivityIndicator />
         )}
-      </>
+      </View>
     );
   }
 }
