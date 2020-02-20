@@ -15,6 +15,7 @@ import * as utils from './src/utils';
 
 import Main from './src/component/pages/Main';
 import Chat from './src/component/pages/Chat';
+import Profile from './src/component/pages/Profile';
 
 const socket = utils.socketIOClient(utils.endpoint);
 socket.on('connect', () => {
@@ -45,8 +46,9 @@ class App extends Component {
   render() {
     return (
       <Provider store={store}>
-        <Main />
+        {/* <Main /> */}
         {/* <Chat /> */}
+        <Profile />
         {/* <NativeRouter>
           <Switch>
             <Route exact path="/" component={StartPage} />
