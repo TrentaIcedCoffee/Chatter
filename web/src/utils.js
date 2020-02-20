@@ -16,4 +16,4 @@ const firebaseConfig = {
 export const firebase = app.initializeApp(firebaseConfig);
 export const db = firebase.firestore();
 export const auth = firebase.auth();
-export const endpoint = "http://34.204.3.123:3000";
+export const endpoint = "http://localhost:3000";

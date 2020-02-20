@@ -29,33 +29,21 @@ socket.on("connect", () => {
 });
 
 const authStateChanged = user => dispatch => {
-  if (user) {
-    dispatch(actions.setter({ user: user }));
-    socket.userEmail = user.email; // IM for future use
-    socket.emit("addUser", { email: socket.userEmail });
-  } else {
-    dispatch(actions.setter({ user: user }));
-    socket.emit("rmUser", { email: socket.userEmail });
+  const prevEmail = socket.userEmail;
+  const curEmail = user ? user.email : undefined;
+  dispatch(actions.setter({ user: user }));
+  socket.userEmail = curEmail;
+  if (prevEmail && (!curEmail || prevEmail !== curEmail)) {
+    socket.emit("rmUser", { email: prevEmail });
+  }
+  if (curEmail) {
+    socket.userEmail = curEmail; // IM for future use
+    socket.emit("addUser", { email: curEmail });
   }
 };
 
 // firebase auth
 utils.auth.onAuthStateChanged(user => store.dispatch(authStateChanged(user)));
-
-const mspErr = state => ({
-  err: state.rootReducer.err
-});
-
-class Err extends React.Component {
-  render = () => (
-    <div>
-      <h2>Err</h2>
-      <div>Err: {this.props.err}</div>
-    </div>
-  );
-}
-
-Err = connect(mspErr, {})(Err);
 
 const mspUser = state => ({
   user: state.rootReducer.user,
@@ -181,7 +169,7 @@ class Chat extends React.Component {
           <div>
             {msgs.map((msg, idx) => (
               <li key={idx}>
-                user: {msg.user}, text: {msg.text}
+                user: {msg.email}, text: {msg.text}
               </li>
             ))}
           </div>
@@ -193,24 +181,33 @@ class Chat extends React.Component {
 
 Chat = connect(mspChat, mdpChat)(Chat);
 
+const mspApp = state => ({
+  err: state.rootReducer.err
+});
+
 class App extends React.Component {
 
-  componentWillUnmount = () => {
-    if (socket.connected) {
-      socket.emit("rmUser", { email: socket.userEmail });
-    }
+  componentDidMount = () => {
+    window.addEventListener("beforeunload", e => {
+      e.preventDefault();
+      if (socket.userEmail) {
+        socket.emit("rmUser", { email: socket.userEmail });
+      }
+    });
   }
 
   render = () => {
     return (
       <div>
-        <Err />
+        <div>Err: {this.props.err}</div>
         <User />
         <Chat />
       </div>
     );
   }
 }
+
+App = connect(mspApp, {})(App);
 
 ReactDOM.render(
   <Provider store={store}>

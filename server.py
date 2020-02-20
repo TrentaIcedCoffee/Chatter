@@ -41,12 +41,15 @@ def contains(d, s):
     return True
   return all(key in d and type(d[key] == str) for key in s.split(','))
 
-activeEmails = set() # { email: str... }
+activeUsers = set() # { email: str... }
 
 socketio = SocketIO(app, cors_allowed_origins='*')
 
 def emitActiveUsers():
-  emit('activeUsers', {'emails': list(activeEmails)}, broadcast=True, include_self=True)
+  emit(
+    'activeUsers', {'emails': list(activeUsers)},
+    broadcast=True, include_self=True
+  )
 
 @socketio.on('connect')
 def connect():
@@ -56,13 +59,14 @@ def connect():
 @socketio.on('addUser')
 def addUser(data):
   if contains(data, 'email'):
-    activeEmails.add(data['email'])
+    activeUsers.add(data['email'])
     emitActiveUsers()
 
 @socketio.on('rmUser')
 def rmUser(data):
   if contains(data, 'email'):
-    activeEmails.remove(data['email'])
+    if data['email'] in activeUsers:
+      activeUsers.remove(data['email'])
     emitActiveUsers()
 
 @socketio.on('msg')
