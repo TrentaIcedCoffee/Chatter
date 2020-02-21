@@ -21,6 +21,18 @@ class Main extends Component {
     this.handleRegister = this.handleRegister.bind(this);
   }
 
+  componentDidMount() {
+    if (this.props.user) {
+      this.props.navigation.navigate('Chat');
+    }
+  }
+
+  componentDidUpdate() {
+    if (this.props.user) {
+      this.props.navigation.navigate('Chat');
+    }
+  }
+
   handleLogin() {
     var {email, password} = this.props.input;
     this.props.login(email, password);
@@ -106,6 +118,7 @@ class Main extends Component {
 
 const mapStateToProps = state => {
   return {
+    user: state.user.user,
     input: state.user.input,
     isLoginPage: state.user.isLoginPage,
   };

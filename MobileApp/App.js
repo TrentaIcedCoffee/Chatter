@@ -5,13 +5,15 @@
  * @format
  * @flow
  */
-import 'react-native-gesture-handler';
 import React, {Component} from 'react';
 import {NativeRouter, Switch, Route, Redirect} from 'react-router-native';
 import {Provider} from 'react-redux';
 import store from './src/store/store';
 import {userActions} from './src/store/actions';
 import * as utils from './src/utils';
+
+import {NavigationContainer} from '@react-navigation/native';
+import {createStackNavigator} from '@react-navigation/stack';
 
 import Main from './src/component/pages/Main';
 import Chat from './src/component/pages/Chat';
@@ -44,13 +46,25 @@ const authStateChanged = user => dispatch => {
 // firebase auth
 utils.auth.onAuthStateChanged(user => store.dispatch(authStateChanged(user)));
 
+const Stack = createStackNavigator();
+
 class App extends Component {
   render() {
     return (
       <Provider store={store}>
+        <NavigationContainer>
+          <Stack.Navigator
+            screenOptions={{
+              headerShown: false,
+            }}>
+            <Stack.Screen name="Home" component={Main} />
+            <Stack.Screen name="Chat" component={Chat} />
+            <Stack.Screen name="Profile" component={Profile} />
+          </Stack.Navigator>
+        </NavigationContainer>
         {/* <Main /> */}
         {/* <Chat /> */}
-        <Profile />
+        {/* <Profile /> */}
         {/* <NativeRouter>
           <Switch>
             <Route exact path="/" component={StartPage} />

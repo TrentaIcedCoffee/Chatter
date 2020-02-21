@@ -53,10 +53,13 @@ class Profile extends Component {
     this.handleLogout = this.handleLogout.bind(this);
   }
 
-  handleBackBtn() {}
+  handleBackBtn() {
+    this.props.navigation.goBack();
+  }
 
   handleLogout() {
     this.props.logout();
+    this.props.navigation.popToTop();
   }
 
   render() {

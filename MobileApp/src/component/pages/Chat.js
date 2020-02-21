@@ -38,7 +38,9 @@ class Chat extends Component {
     this.sendText = this.sendText.bind(this);
   }
 
-  handleProfileBtn() {}
+  handleProfileBtn() {
+    this.props.navigation.navigate('Profile');
+  }
 
   //   TODO: Change emit msg
   sendText(text) {
