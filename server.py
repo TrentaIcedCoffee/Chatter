@@ -48,7 +48,7 @@ def isValidParam(obj, lst):
     elif key in obj and type(obj[key]) != _type:
       errors.append(f'{key} not in type {_type}')
   if errors:
-    emit('err', ','.join(errors))
+    emitError(','.join(errors))
     return False
   return True
 
@@ -63,7 +63,7 @@ def emitActiveUsers():
   )
 
 def emitError(err: str):
-  emit('err', {'err': err})
+  emit('err', {'err': err}, broadcast=False)
 
 @socketio.on('connect')
 def connect():
