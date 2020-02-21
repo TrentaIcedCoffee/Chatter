@@ -28,7 +28,7 @@ const store = createStore(
 global.socket = utils.SocketIOClient(utils.endpoint + '?b64=1');
 global.socket.on('connect', () => {
   console.log('connected');
-  global.socket.on('err', data => console.log(data));
+  global.socket.on('err', data => console.log(data.err));
   global.socket.on('activeUsers', data => {
     store.dispatch(actions.setter({activeUsers: data.emails}));
   });
@@ -52,13 +52,21 @@ utils.auth.onAuthStateChanged(user => store.dispatch(dispatch => {
   }
 }));
 
+class Wrapper extends Component {
+  render = () => {
+    const { user } = this.props;
+    return user ? <Chat /> : <Auth />;
+  };
+}
+
+Wrapper = connect(state => ({ user: state.user }), {})(Wrapper);
+
 class App extends Component {
   render = () => {
     return (
       <Provider store={store}>
         <Err />
-        <Auth />
-        <Chat />
+        <Wrapper />
       </Provider>
     );
   }
