@@ -10,7 +10,7 @@ const init = {
   activeUsers: [],
 };
 
-export const rootReducer = (state = init, action) => {
+export default (state = init, action) => {
   switch (action.type) {
     case 'SETTER':
       return { ...state, ...action.res };
