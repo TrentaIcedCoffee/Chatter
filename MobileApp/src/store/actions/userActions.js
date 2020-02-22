@@ -76,6 +76,9 @@ export const login = (email, password) => dispatch => {
 
 export const logout = () => dispatch => {
   utils.auth.signOut().catch(err => dispatch(setter({err: err.message})));
+  dispatch({
+    type: 'CLEAR_HISTORY',
+  });
 };
 
 export const pushMsg = msg => ({

@@ -49,7 +49,8 @@ class Main extends Component {
         onPress={() => {
           Keyboard.dismiss();
         }}>
-        <KeyboardAvoidingView style={{flex: 1}} behavior="height">
+        {/* behavior="": IOS => padding, Android => height */}
+        <KeyboardAvoidingView style={{flex: 1}} behavior="padding">
           <SafeAreaView style={styles.container}>
             <View>
               <Text style={styles.title}>NO Rubbish Talk!</Text>
@@ -58,11 +59,13 @@ class Main extends Component {
               style={styles.input}
               placeholder="Email Address"
               onChangeText={email => this.props.updateEmail(email)}
+              value={this.props.input.email}
             />
             <TextInput
               style={styles.input}
               placeholder="Password"
               onChangeText={password => this.props.updatePassword(password)}
+              value={this.props.input.password}
               secureTextEntry
             />
 

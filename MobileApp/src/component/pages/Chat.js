@@ -1,5 +1,11 @@
 import React, {Component} from 'react';
-import {View, Text, TouchableOpacity, ActivityIndicator} from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ActivityIndicator,
+  SafeAreaView,
+} from 'react-native';
 import styles from './Chat.css';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faUserCircle} from '@fortawesome/free-solid-svg-icons';
@@ -7,7 +13,6 @@ import {GiftedChat} from 'react-native-gifted-chat';
 
 import {connect} from 'react-redux';
 import {userActions} from '../../store/actions';
-import * as utils from '../../utils';
 
 class Chat extends Component {
   constructor() {
@@ -37,7 +42,7 @@ class Chat extends Component {
 
   render() {
     return (
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <View style={styles.navBar}>
           <View style={styles.titleBox}>
             <Text style={styles.titleText}>Now You Shall Talk!</Text>
@@ -61,7 +66,7 @@ class Chat extends Component {
         ) : (
           <ActivityIndicator />
         )}
-      </View>
+      </SafeAreaView>
     );
   }
 }

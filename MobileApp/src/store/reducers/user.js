@@ -44,6 +44,8 @@ const userReducer = (state = initialState, action) => {
           password: null,
         },
       };
+    case 'CLEAR_HISTORY':
+      return initialState;
     case 'SETTER':
       return {...state, ...action.res};
     case 'PUSH_MSG':
