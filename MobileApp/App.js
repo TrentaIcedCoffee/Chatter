@@ -6,7 +6,7 @@
  * @flow
  */
 import React, {Component} from 'react';
-import {NativeRouter, Switch, Route, Redirect} from 'react-router-native';
+import {YellowBox} from 'react-native';
 import {Provider} from 'react-redux';
 import store from './src/store/store';
 import {userActions} from './src/store/actions';
@@ -19,33 +19,40 @@ import Main from './src/component/pages/Main';
 import Chat from './src/component/pages/Chat';
 import Profile from './src/component/pages/Profile';
 
-const socket = utils.socketIOClient(utils.endpoint);
-// TODO failed to connect & no warning
-console.log(socket);
-socket.on('connect', () => {
+// Config
+YellowBox.ignoreWarnings(['Setting a timer']);
+
+// Socket Connect
+global.socket = utils.SocketIOClient(utils.endpoint + '?b64=1');
+global.socket.on('connect', () => {
   console.log('connected');
-  socket.on('activeUsers', data => {
-    store.dispatch(userActions.setter({activeUsers: data.activeUsers}));
+  global.socket.on('err', data => console.log('error from server', data.err));
+  global.socket.on('activeUsers', data => {
+    store.dispatch(userActions.setter({activeUsers: data.emails}));
   });
-  socket.on('msg', data => {
-    store.dispatch(userActions.pushMsg(data));
+  global.socket.on('msg', data => {
+    store.dispatch(userActions.pushMsg(data.pkg));
   });
 });
 
-const authStateChanged = user => dispatch => {
-  if (user) {
-    dispatch(userActions.setter({user: user}));
-    socket.userEmail = user.email; // IM for future use
-    socket.emit('addUser', {user: socket.userEmail});
-  } else {
-    dispatch(userActions.setter({user: user}));
-    socket.emit('rmUser', {user: socket.userEmail});
-  }
-};
-
 // firebase auth
-utils.auth.onAuthStateChanged(user => store.dispatch(authStateChanged(user)));
+utils.auth.onAuthStateChanged(user =>
+  store.dispatch(dispatch => {
+    const prevEmail = socket.userEmail;
+    const curEmail = user ? user.email : undefined;
+    dispatch(userActions.setter({user: user}));
+    global.socket.userEmail = curEmail;
+    if (prevEmail && (!curEmail || prevEmail !== curEmail)) {
+      global.socket.emit('rmUser', {email: prevEmail});
+    }
+    if (curEmail) {
+      global.socket.userEmail = curEmail; // IM for future use
+      global.socket.emit('addUser', {email: curEmail});
+    }
+  }),
+);
 
+// Navigator
 const Stack = createStackNavigator();
 
 class App extends Component {
@@ -62,17 +69,6 @@ class App extends Component {
             <Stack.Screen name="Profile" component={Profile} />
           </Stack.Navigator>
         </NavigationContainer>
-        {/* <Main /> */}
-        {/* <Chat /> */}
-        {/* <Profile /> */}
-        {/* <NativeRouter>
-          <Switch>
-            <Route exact path="/" component={StartPage} />
-            <Route exact path="/Lst" component={TrapLstPage} />
-            <Route exact path="/Info" component={TrapInfoPage} />
-            <Redirect to="/" />
-          </Switch>
-        </NativeRouter> */}
       </Provider>
     );
   }

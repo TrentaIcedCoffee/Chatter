@@ -13,41 +13,10 @@ import styles from './Profile.css';
 
 import {connect} from 'react-redux';
 import {userActions} from '../../store/actions';
-import * as utils from '../../utils';
-
-// ??: Do I need socket?
-const socket = utils.socketIOClient(utils.endpoint);
-socket.on('connect', () => {
-  console.log('connected');
-  socket.on('activeUsers', data => {
-    store.dispatch(userActions.setter({activeUsers: data.activeUsers}));
-  });
-  socket.on('msg', data => {
-    store.dispatch(userActions.pushMsg(data));
-  });
-});
 
 class Profile extends Component {
   constructor() {
     super();
-    this.state = {
-      activeUsers: [
-        'aaa',
-        'bbb',
-        'ccc',
-        'ddd',
-        'eee',
-        'fff',
-        'ggg',
-        'hhh',
-        'iii',
-        'jjj',
-        'kkk',
-        'lll',
-        'mmm',
-        'nnn',
-      ],
-    };
 
     this.handleBackBtn = this.handleBackBtn.bind(this);
     this.handleLogout = this.handleLogout.bind(this);
@@ -93,11 +62,13 @@ class Profile extends Component {
           </View>
           <View style={styles.infoBoxContainer}>
             <Text style={styles.infoBoxTitle}>
-              Active Users ({this.state.activeUsers.length}):
+              Active Users ({this.props.activeUsers.length}):
             </Text>
-            {this.state.activeUsers.length > 0
-              ? this.state.activeUsers.map(item => (
-                  <Text style={styles.activeUsers}>{item}</Text>
+            {this.props.activeUsers.length > 0
+              ? this.props.activeUsers.map(item => (
+                  <Text key={item} style={styles.activeUsers}>
+                    {item}
+                  </Text>
                 ))
               : null}
           </View>

@@ -1,3 +1,5 @@
+import {GiftedChat} from 'react-native-gifted-chat';
+
 const initialState = {
   err: '',
   user: null,
@@ -45,7 +47,8 @@ const userReducer = (state = initialState, action) => {
     case 'SETTER':
       return {...state, ...action.res};
     case 'PUSH_MSG':
-      return {...state, msgs: [...state.msgs, action.res]};
+      var newMsgs = action.res.concat(state.msgs);
+      return {...state, msgs: newMsgs};
     default:
       return state;
   }
