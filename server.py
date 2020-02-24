@@ -86,7 +86,7 @@ def rmUser(data):
 
 @socketio.on('msg')
 def msg(data):
-  if not isValidParam(data, [('email',str),('pkg',dict)]):
+  if not isValidParam(data, [('email',str),('pkg',list)]):
     return
   emit('msg', {
     'email': data['email'],
