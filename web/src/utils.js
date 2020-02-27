@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 import app from "firebase/app";
 import "firebase/firestore";
 import "firebase/auth";
 export { default as SocketIOClient } from "socket.io-client";
+=======
+import app from 'firebase/app';
+import 'firebase/firestore';
+import 'firebase/auth';
+export { default as SocketIOClient } from 'socket.io-client';
+>>>>>>> 26c5774519e5b1a3b4afc094efee9499a64c6a3c
 
 const firebaseConfig = {
   apiKey: "AIzaSyC0IrR4AvUJVRX_aUyucjhV66YzawPKYFk",
@@ -16,4 +23,4 @@ const firebaseConfig = {
 export const firebase = app.initializeApp(firebaseConfig);
 export const db = firebase.firestore();
 export const auth = firebase.auth();
-export const endpoint = "http://34.201.245.202:3000";
+export const endpoint = 'http://52.91.26.248:3000';

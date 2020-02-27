@@ -1,19 +1,17 @@
-import React, { Component } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React from 'react';
 import { connect } from 'react-redux';
-import * as actions from '../actions';
 
 const mapStateToProps = state => ({
   err: state.err
 });
 
-class Err extends Component {
+class Err extends React.Component {
   render = () => {
     const { err } = this.props;
     return (
-      <View>
-        <Text>{err}</Text>
-      </View>
+      <div>
+        {err}
+      </div>
     );
   };
 }

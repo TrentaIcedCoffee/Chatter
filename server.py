@@ -1,38 +1,37 @@
 ''' backend '''
 
-from flask import Flask
+from flask import Flask, request
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
-from google.cloud import language
-from google.cloud.language import enums
-from google.cloud.language import types
 from dotenv import load_dotenv
-import six
-import os
-
-punctuations = set('''!()-[]{};:'"\,<>./?@#$%^&*_~''')
-
-def checkEnv(reqVars):
-  missings = []
-  for var in reqVars:
-    if var not in os.environ:
-      missings.append(var)
-  if missings:
-    exit(f'missing vars: {",".join(missings)}')
-
-app = Flask(__name__)
+import utils
 
 # config
+app = Flask(__name__)
 load_dotenv('./.envs/.env')
-reqVars = ['GOOGLE_APPLICATION_CREDENTIALS']
-checkEnv(reqVars)
+reqVars = ['GOOGLE_APPLICATION_CREDENTIALS', 'NAMES']
+utils.checkEnv(reqVars)
 CORS(app)
+db = utils.DbUtils()
+nlp = utils.NLPUtils()
 
 # routes
 @app.route('/', methods=['GET'])
 def index():
   ''' health check '''
   return {'message': 'ok'}, 200
+
+@app.route('/ingest', methods=['POST'])
+def ingest():
+  ''' ingest to profile '''
+  data = request.get_json(silent=True)
+  if 'email' not in data or 'text' not in data:
+    return {'message': 'email/text not posted'}, 400
+  res = nlp.train(data['text'])
+  if not res:
+    return {'message': 'useless text'}, 200
+  db.ingest(data['email'], res)
+  return {'message': 'ingest done'}, 200
 
 # sockets
 def contains(d, s):
@@ -87,12 +86,16 @@ def rmUser(data):
 
 @socketio.on('msg')
 def msg(data):
-  if not isValidParam(data, [('email',str),('pkg',dict)]):
+  if not isValidParam(data, [('email',str),('pkg',list)]):
     return
   emit('msg', {
     'email': data['email'],
     'pkg': data['pkg'],
   }, broadcast=True, include_self=True)
+  email, text = data['email'], data['pkg'][0]['text']
+  res = nlp.train(text)
+  if res:
+    db.ingest(email, res)
 
 if __name__ == '__main__':
-  socketio.run(app, host='0.0.0.0', port=3000, debug=True)
+  socketio.run(app, host='0.0.0.0', port=3000, debug=False)
