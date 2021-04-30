@@ -37,7 +37,7 @@ python-engineio==3.11.2
 python-socketio==4.4.0
 pytz==2019.3
 requests==2.23.0
-rsa==4.0
+rsa==4.7
 six==1.14.0
 uritemplate==3.0.1
 urllib3==1.25.8
